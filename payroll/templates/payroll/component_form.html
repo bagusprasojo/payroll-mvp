@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="h4 mb-3">{{ title }}</h1>
+<div class="card">
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.name.id_for_label }}">Nama Komponen</label>
+                        {{ form.name }}
+                        {% for error in form.name.errors %}
+                            <div class="form-text text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.code.id_for_label }}">Kode</label>
+                        {{ form.code }}
+                        {% for error in form.code.errors %}
+                            <div class="form-text text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.component_type.id_for_label }}">Jenis Komponen</label>
+                        {{ form.component_type }}
+                        {% for error in form.component_type.errors %}
+                            <div class="form-text text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.default_amount.id_for_label }}">Nominal Default</label>
+                        {{ form.default_amount }}
+                        {% for error in form.default_amount.errors %}
+                            <div class="form-text text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check mt-2">
+                        {{ form.is_fixed }}
+                        <label class="form-check-label" for="{{ form.is_fixed.id_for_label }}">Komponen Tetap</label>
+                        {% for error in form.is_fixed.errors %}
+                            <div class="form-text text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check mt-2">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Aktif</label>
+                        {% for error in form.is_active.errors %}
+                            <div class="form-text text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'component_list' %}" class="btn btn-light">Kembali</a>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

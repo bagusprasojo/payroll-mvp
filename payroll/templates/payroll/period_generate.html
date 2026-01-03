@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h1 class="h4 mb-3">Generate Gaji - Periode {{ period.label }}</h1>
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.method.id_for_label }}">Metode Generate</label>
+                {{ form.method }}
+                {% for error in form.method.errors %}
+                    <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.source_period.id_for_label }}">Periode Sumber (opsional)</label>
+                {{ form.source_period }}
+                {% for error in form.source_period.errors %}
+                    <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.upload_file.id_for_label }}">File Impor (Excel)</label>
+                {{ form.upload_file }}
+                {% for error in form.upload_file.errors %}
+                    <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'period_detail' period.pk %}" class="btn btn-light">Batal</a>
+                <button type="submit" class="btn btn-primary">Proses</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="alert alert-info mt-3">
+    <strong>Tips impor:</strong> gunakan file Excel dengan header <code>email</code>, <code>component_code</code>, <code>amount</code>.
+    <br>
+    <a href="{% static 'templates/payroll_import_template.xlsx' %}" class="btn btn-sm btn-outline-light mt-2">Unduh Template Excel</a>
+</div>
+{% endblock %}

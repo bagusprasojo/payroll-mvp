@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card card-metric shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Pegawai Aktif</h6>
+                <p class="display-6">{{ employee_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-metric shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Komponen Gaji</h6>
+                <p class="display-6">{{ component_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-metric shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Total Gaji Periode Terakhir</h6>
+                <p class="display-6">Rp {{ total_payroll|floatformat:0|intcomma }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if latest_period %}
+<div class="card mt-4">
+    <div class="card-header">Periode Terakhir</div>
+    <div class="card-body">
+        <p class="mb-1"><strong>Periode:</strong> {{ latest_period.label }}</p>
+        <p class="mb-1"><strong>Status:</strong> {{ latest_period.get_status_display }}</p>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'period_detail' latest_period.pk %}">Lihat detail</a>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info mt-4">
+    Belum ada periode payroll. Mulai dengan membuat periode baru.
+</div>
+{% endif %}
+{% endblock %}

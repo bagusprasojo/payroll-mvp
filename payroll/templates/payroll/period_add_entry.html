@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 mb-1">Tambah Gaji Pegawai</h1>
+        <p class="mb-0 text-muted">Periode {{ period.label }}</p>
+    </div>
+    <a href="{% url 'period_detail' period.pk %}" class="btn btn-light btn-sm">Kembali</a>
+</div>
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Tambah Gaji</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Data Pegawai</h1>
+    <a href="{% url 'employee_create' %}" class="btn btn-primary btn-sm">Tambah Pegawai</a>
+    </div>
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>NIP</th>
+                    <th>Email</th>
+                    <th>Jenis</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for employee in employees %}
+                    <tr>
+                        <td>{{ employee.full_name }}</td>
+                        <td>{{ employee.nip|default:"-" }}</td>
+                        <td>{{ employee.email }}</td>
+                        <td>{{ employee.get_employee_type_display }}</td>
+                        <td>
+                            {% if employee.is_active %}
+                                <span class="badge text-bg-success">Aktif</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">Non aktif</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'employee_edit' employee.pk %}" class="btn btn-sm btn-outline-primary">Ubah</a>
+                            <form action="{% url 'employee_delete' employee.pk %}" method="post" class="d-inline" onsubmit="return confirm('Hapus pegawai?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">Belum ada pegawai.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+body {
+    font-size: 0.95rem;
+}
+
+table th, table td {
+    vertical-align: middle;
+}
+
+.card-metric {
+    border-left: 4px solid #0d6efd;
+}

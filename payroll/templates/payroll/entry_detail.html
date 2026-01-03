@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 mb-1">{{ entry.employee.full_name }}</h1>
+        <p class="mb-0 text-muted">Periode {{ period.label }}</p>
+    </div>
+    <div>
+        <a href="{% url 'period_detail' period.pk %}" class="btn btn-light btn-sm">Kembali</a>
+        <a href="{% url 'payroll_entry_pdf' period.pk entry.pk %}" class="btn btn-outline-secondary btn-sm">Unduh PDF</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 text-muted">Ringkasan Gaji</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                    <span>Total Pendapatan</span>
+                    <strong>Rp {{ entry.total_earnings|floatformat:0|intcomma }}</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                    <span>Total Potongan</span>
+                    <strong>Rp {{ entry.total_deductions|floatformat:0|intcomma }}</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Gaji Bersih</span>
+                    <strong class="text-success">Rp {{ entry.net_pay|floatformat:0|intcomma }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if editable %}
+<form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3 h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Pendapatan</span>
+                    <small class="text-muted">Ubah atau hapus item</small>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th>Komponen</th>
+                            <th>Nominal</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for form in earning_forms %}
+                            <tr>
+                                <td>
+                                    {{ form.instance.component_name }}
+                                    {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+                                </td>
+                                <td>{{ form.amount }}</td>
+                                <td>
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            formaction="{% url 'payroll_entry_delete_item' period.pk entry.pk form.instance.pk %}"
+                                            formmethod="post"
+                                            onclick="return confirm('Hapus item ini?');">
+                                        Hapus
+                                    </button>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Tidak ada komponen pendapatan.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3 h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Potongan</span>
+                    <small class="text-muted">Ubah atau hapus item</small>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th>Komponen</th>
+                            <th>Nominal</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for form in deduction_forms %}
+                            <tr>
+                                <td>
+                                    {{ form.instance.component_name }}
+                                    {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+                                </td>
+                                <td>{{ form.amount }}</td>
+                                <td>
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            formaction="{% url 'payroll_entry_delete_item' period.pk entry.pk form.instance.pk %}"
+                                            formmethod="post"
+                                            onclick="return confirm('Hapus item ini?');">
+                                        Hapus
+                                    </button>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Tidak ada komponen potongan.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-end mt-3">
+        <button class="btn btn-primary" type="submit">Simpan Perubahan</button>
+    </div>
+</form>
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="card mb-3 h-100">
+            <div class="card-header">Tambah Pendapatan</div>
+            <div class="card-body">
+                <form method="post" action="{% url 'payroll_entry_add_item' period.pk entry.pk 'earning' %}">
+                    {% csrf_token %}
+                    <div class="row g-2">
+                        <div class="col-8">
+                            {{ earning_add_form.component }}
+                        </div>
+                        <div class="col-4">
+                            {{ earning_add_form.amount }}
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-success w-100" type="submit">Tambah</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-3 h-100">
+            <div class="card-header">Tambah Potongan</div>
+            <div class="card-body">
+                <form method="post" action="{% url 'payroll_entry_add_item' period.pk entry.pk 'deduction' %}">
+                    {% csrf_token %}
+                    <div class="row g-2">
+                        <div class="col-8">
+                            {{ deduction_add_form.component }}
+                        </div>
+                        <div class="col-4">
+                            {{ deduction_add_form.amount }}
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-success w-100" type="submit">Tambah</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">
+    Periode sudah final sehingga data tidak dapat diubah.
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3 h-100">
+            <div class="card-header">Pendapatan</div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>Komponen</th>
+                        <th>Nominal</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in earning_items %}
+                        <tr>
+                            <td>{{ item.component_name }}</td>
+                            <td>Rp {{ item.amount|floatformat:0|intcomma }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">Tidak ada komponen pendapatan.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-3 h-100">
+            <div class="card-header">Potongan</div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>Komponen</th>
+                        <th>Nominal</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in deduction_items %}
+                        <tr>
+                            <td>{{ item.component_name }}</td>
+                            <td>Rp {{ item.amount|floatformat:0|intcomma }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">Tidak ada komponen potongan.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

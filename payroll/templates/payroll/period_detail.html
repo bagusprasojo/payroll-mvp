@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 mb-1">Periode {{ period.label }}</h1>
+        <p class="mb-0 text-muted">Status: {{ period.get_status_display }}</p>
+    </div>
+    <div>
+        <a href="{% url 'period_list' %}" class="btn btn-light btn-sm">Kembali</a>
+        {% if period.status == period.STATUS_DRAFT %}
+            <a href="{% url 'period_add_entry' period.pk %}" class="btn btn-success btn-sm me-1">Tambah Gaji Pegawai</a>
+            <a href="{% url 'period_generate' period.pk %}" class="btn btn-outline-primary btn-sm">Generate Gaji</a>
+            <form method="post" action="{% url 'period_finalize' period.pk %}" class="d-inline" onsubmit="return confirm('Finalisasi akan mengunci data. Lanjutkan?');">
+                {% csrf_token %}
+                <button class="btn btn-danger btn-sm" type="submit">Finalisasi</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                <tr>
+                    <th>Pegawai</th>
+                    <th>Pendapatan</th>
+                    <th>Potongan</th>
+                    <th>Gaji Bersih</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for entry in entries %}
+                    <tr>
+                        <td>{{ entry.employee.full_name }}</td>
+                        <td>Rp {{ entry.total_earnings|floatformat:0|intcomma }}</td>
+                        <td>Rp {{ entry.total_deductions|floatformat:0|intcomma }}</td>
+                        <td>Rp {{ entry.net_pay|floatformat:0|intcomma }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'payroll_entry_detail' period.pk entry.pk %}" class="btn btn-sm btn-outline-primary">Detail</a>
+                            <a href="{% url 'payroll_entry_pdf' period.pk entry.pk %}" class="btn btn-sm btn-outline-secondary">PDF</a>
+                            <form method="post" action="{% url 'payroll_entry_delete' period.pk entry.pk %}" class="d-inline-block" onsubmit="return confirm('Hapus data gaji pegawai ini?');">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger" type="submit"{% if period.status == period.STATUS_FINAL %} disabled{% endif %}>Hapus</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">Belum ada data gaji. Gunakan aksi generate.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
